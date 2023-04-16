@@ -1,0 +1,99 @@
+{
+    "baseUrl": "https://jsonplaceholder.typicode.com",
+    "routes": [
+        {
+            "id": "1",
+            "name": "Get Posts",
+            "description": "",
+            "url": {
+                "path": "/posts"
+            },
+            "method": "GET"
+        },
+        {
+            "id": "2",
+            "name": "Get Single Posts",
+            "description": "",
+            "url": {
+                "path": "/posts/:id",
+                "variables": {
+                    "isRequired": true,
+                    "params": {
+                        "id": "1"
+                    }
+                }
+            },
+            "method": "GET"
+        },
+        {
+            "id": "3",
+            "name": "Get Comments of Posts",
+            "description": "",
+            "url": {
+                "path": "/posts/:id/comments",
+                "variables": {
+                    "isRequired": true,
+                    "params": {
+                        "id": "1"
+                    }
+                }
+            },
+            "method": "GET"
+        },
+        {
+            "id": "4",
+            "name": "Get Comments",
+            "description": "",
+            "url": {
+                "path": "/comments"
+            },
+            "method": "GET",
+            "query": {
+                "isRequired": true,
+                "params": {
+                    "postId": "1"
+                }
+            }
+        },
+        {
+            "id": "5",
+            "name": "Add Post",
+            "description": "",
+            "url": {
+                "path": "/posts"
+            },
+            "method": "POST",
+            "body": {
+                "isRequired": true,
+                "params": {
+                    "title": "New post title",
+                    "body": "This is new post body",
+                    "userId": "1"
+                }
+            }
+        },
+        {
+            "id": "6",
+            "name": "Update a post",
+            "description": "",
+            "url": {
+                "path": "/posts/:id",
+                "variables": {
+                    "isRequired": true,
+                    "params": {
+                        "id": "1"
+                    }
+                }
+            },
+            "method": "PUT",
+            "body": {
+                "isRequired": true,
+                "params": {
+                    "title": "Updated post title",
+                    "body": "Updated post body",
+                    "userId": "1"
+                }
+            }
+        }
+    ]
+}

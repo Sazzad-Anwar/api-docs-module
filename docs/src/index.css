@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: 'Ubuntu', sans-serif;
+}
+
+@layer utilities {
+    .normal-transition {
+        @apply transition-all duration-100 ease-linear;
+    }
+}
