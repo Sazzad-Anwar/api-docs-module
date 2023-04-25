@@ -1,0 +1,1 @@
+import{E as o}from"./index-301d79d5.js";const A=t=>o.CREATE_API.split(":id").join(t),I=(t,i)=>o.API_DETAILS.split(":id").join(t).split(":apiId").join(i),r=t=>o.UPDATE_COLLECTION.split(":id").join(t),E=(t,i)=>{let s=o.UPDATE_API.split(":id").join(t);return console.log(s.split(":apiId").join(i)),s.split(":apiId").join(i)};export{I as A,A as C,E as U,r as a};
