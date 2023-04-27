@@ -266,8 +266,6 @@ export default function ApiDetails() {
         return { __html: apiDetails?.description ? apiDetails?.description : '' };
     };
 
-    console.log(config);
-
     return (
         <>
             <div className="w-full h-screen dark:bg-dark-primary-50 bg-white px-5 relative">
