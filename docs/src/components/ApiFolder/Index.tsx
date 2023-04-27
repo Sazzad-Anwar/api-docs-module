@@ -8,13 +8,29 @@ import { API_DETAILS } from '../../utils/DynamicUrl';
 export const ApiMethod = (method: string, name: string) => {
     switch (method) {
         case 'GET':
-            return <span className="text-green-500">{name}</span>;
+            return (
+                <span className="rounded p-2 text-sm bg-green-600 group-hover:bg-green-700 text-white">
+                    {name}
+                </span>
+            );
         case 'POST':
-            return <span className="text-blue-500">{name}</span>;
+            return (
+                <span className="rounded p-2 text-sm bg-blue-600 group-hover:bg-blue-700 text-white">
+                    {name}
+                </span>
+            );
         case 'PUT':
-            return <span className="text-purple-500">{name}</span>;
+            return (
+                <span className="rounded p-2 text-sm bg-purple-600 group-hover:bg-purple-700 text-white">
+                    {name}
+                </span>
+            );
         case 'DELETE':
-            return <span className="text-red-500">{name}</span>;
+            return (
+                <span className="rounded p-2 text-sm bg-red-600 group-hover:bg-red-700 text-white">
+                    {name}
+                </span>
+            );
     }
 };
 
@@ -63,16 +79,16 @@ export default function ApiFolder({
                                 (isOpen
                                     ? 'visible opacity-100 h-full w-full py-2'
                                     : ' invisible h-0 w-full opacity-0') +
-                                ' ml-2 pl-4 dark:text-white block text-left truncate border-l dark:border-gray-500  hover:border-dark-primary-50 dark:hover:border-white hover:dark:text-gray-400 normal-transition rounded-r-md ' +
+                                ' ml-2 pl-4 dark:text-white block text-left truncate border-l dark:border-gray-500  hover:border-dark-primary-50 dark:hover:border-white hover:dark:text-gray-400 normal-transition rounded-r-md group' +
                                 (params?.apiId === apiItem?.id
-                                    ? ' dark:border-white border-dark-primary-50 bg-white shadow-md dark:bg-dark-primary-50 text-base'
+                                    ? ' dark:border-white border-dark-primary-50 bg-gray-100  dark:bg-dark-primary-50 text-base'
                                     : 'text-base border-gray-300')
                             }
                             onClick={() => {
                                 navigate(API_DETAILS(params?.id!, apiItem?.id!));
                             }}
                         >
-                            {ApiMethod(apiItem.method, apiItem.name)}
+                            <span className="ml-2">{apiItem.name}</span>
                         </button>
                     );
                 } else {
@@ -80,16 +96,16 @@ export default function ApiFolder({
                         <button
                             key={apiItem?.id}
                             className={
-                                'h-full w-full py-2 pt-2 mt-2 pl-4 dark:text-white block text-left truncate hover:dark:text-gray-400 normal-transition rounded-r-md ' +
+                                'h-full w-full py-2 pt-2 mt-2 dark:text-white block text-left truncate hover:dark:text-gray-400 normal-transition rounded-r-md group ' +
                                 (params?.apiId === apiItem?.id
-                                    ? '  bg-white shadow-md dark:bg-dark-primary-50 text-base'
+                                    ? '  bg-gray-100 dark:bg-dark-primary-50 text-base'
                                     : ' text-base')
                             }
                             onClick={() => {
                                 navigate(API_DETAILS(params?.id!, apiItem?.id!));
                             }}
                         >
-                            {ApiMethod(apiItem.method, apiItem.name)}
+                            <span className="ml-2">{apiItem.name}</span>
                         </button>
                     );
                 }

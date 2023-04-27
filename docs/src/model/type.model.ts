@@ -3,7 +3,7 @@ export type ApiType = {
     groupName?: string;
     id?: string;
     name: string;
-    description: string;
+    description?: string;
     url: {
         path: string;
         variables?: {

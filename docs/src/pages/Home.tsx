@@ -19,9 +19,15 @@ export default function Home() {
 
     return (
         <div className="h-screen w-full flex flex-col justify-center items-center dark:bg-dark-primary-50 relative">
-            <button onClick={toggleTheme} className="absolute right-5 top-5 dark:text-white">
-                {theme === 'dark' ? <FaMoon /> : <BsFillSunFill />}
-            </button>
+            <div className="absolute right-5 top-5">
+                <button
+                    onClick={toggleTheme}
+                    className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition items-end justify-self-end rounded border border-gray-200 p-2 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
+                >
+                    {theme === 'dark' ? <FaMoon size={18} /> : <BsFillSunFill size={18} />}
+                </button>
+            </div>
+
             <SiPostman size={60} className="text-[#c16630] mb-3" />
             <h1 className="dark:text-white text-xl">Welcome to API Docs</h1>
             <button

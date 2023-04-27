@@ -1,13 +1,22 @@
-import express, { Application } from 'express';
-import { Server } from 'http';
-import path from 'path';
+import express, { Express, Request, Response } from 'express';
 import { serveApiDocs } from '@sazzad/api-docs';
+import path from 'path';
+import cors from 'cors';
 
-const app: Application = express();
-const port: number = 5000;
+const app: Express = express();
+const port = 5000;
 
-let apiDocJSONDir = path.join(__dirname, '../apiDoc.json');
+let dir = path.join(__dirname, '../jsonDri.json');
 
-serveApiDocs(app, apiDocJSONDir);
+app.use(cors());
+app.get('/', (req: Request, res: Response) => {
+    res.json({
+        message: `Server is running on ${req.protocol}://${req.hostname}:${port}`,
+    });
+});
 
-let server: Server = app.listen(port, () => console.log(`The app is running on port ${port}`));
+serveApiDocs(app, dir, 'production');
+
+app.listen(port, () => {
+    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+});

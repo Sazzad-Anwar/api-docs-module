@@ -13,6 +13,9 @@ import { VscChromeClose } from 'react-icons/vsc';
 import useStore from '../store/store';
 import { v4 as uuid } from 'uuid';
 import { API_DETAILS } from '../utils/DynamicUrl';
+import MDEditor from '@uiw/react-md-editor';
+import rehypeSanitize from 'rehype-sanitize';
+import { ERoutes } from '../Router/routes.enum';
 const Modal = lazy(() => import('../components/Modal/Modal'));
 const Editor = lazy(() => import('../components/Editor/Index'));
 
@@ -23,16 +26,10 @@ export default function AddAPI() {
     let [api, setApi] = useState<ApiType>({} as ApiType);
     let [isEdited, setIsEdited] = useState<boolean>(false);
     let [openModal, setOpenModal] = useState<boolean>(false);
+    let [activeTab, setActiveTab] = useState<'api' | 'description'>('api');
+    let [description, setDescription] = useState<string>('');
     let store = useStore();
     let params = useParams();
-
-    useEffect(() => {
-        if (store?.api?.routes?.find((item) => item?.id === params?.apiId)) {
-            setApi(store?.api?.routes?.find((item) => item?.id === params?.apiId)!);
-        } else {
-            // navigate('/collections');
-        }
-    }, []);
 
     let handleSetData = (value: string): void => {
         setApiDetailsDoc(JSON.stringify(value));
@@ -79,21 +76,55 @@ export default function AddAPI() {
                         </span>
                     </h1>
                 </div>
-                <Suspense fallback={<Loader />}>
-                    <Editor
-                        jsonData={SingleApi}
-                        readOnly={false}
-                        height="70vh"
-                        setData={handleSetData}
+                <div className="my-2 flex items-center">
+                    <button
+                        onClick={() => setActiveTab('api')}
+                        className={
+                            'font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded px-2  font-medium hover:shadow-lg active:scale-95 dark:text-white mt-3 disabled:dark:border-blue-900 disabled:bg-blue-600 disabled:bg-opacity-20 disabled:text-gray-400 disabled:cursor-not-allowed disabled:active:scale-100 ' +
+                            (activeTab === 'api' && 'bg-blue-600 dark:border-blue-600 text-white')
+                        }
+                    >
+                        API
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('description')}
+                        className={
+                            'font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded px-2 ml-2 font-medium hover:shadow-lg active:scale-95 mt-3 dark:text-white disabled:dark:border-blue-900 disabled:bg-blue-600 disabled:bg-opacity-20 disabled:text-gray-400 disabled:cursor-not-allowed disabled:active:scale-100 ' +
+                            (activeTab === 'description' &&
+                                'bg-blue-600 dark:border-blue-600 text-white')
+                        }
+                    >
+                        Description
+                    </button>
+                </div>
+                {activeTab === 'api' ? (
+                    <Suspense fallback={<Loader />}>
+                        <Editor
+                            jsonData={SingleApi}
+                            readOnly={false}
+                            height="60vh"
+                            setData={handleSetData}
+                        />
+                    </Suspense>
+                ) : (
+                    <MDEditor
+                        value={description}
+                        onChange={(value) => setDescription(value!)}
+                        previewOptions={{
+                            rehypePlugins: [[rehypeSanitize]],
+                        }}
+                        height={480}
                     />
-                </Suspense>
+                )}
 
                 <button
                     disabled={!isEdited}
                     onClick={() => {
                         if (apiDetailsDoc !== '') {
                             let id = uuid();
-                            store.addApi(params?.id!, id, JSON.parse(apiDetailsDoc));
+                            let jsonData: ApiType = JSON.parse(JSON.parse(apiDetailsDoc));
+                            let updatedData = { ...jsonData, description, id };
+                            store.addApi(params?.id!, id, JSON.stringify(updatedData!));
                             navigate(API_DETAILS(params?.id!, id!));
                         }
                     }}

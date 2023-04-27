@@ -17,6 +17,15 @@ import useStore from '../store/store';
 import useDeviceWidth from '../hooks/useDeviceWidth/useDeviceWidth';
 import { ERoutes } from '../Router/routes.enum';
 import { UPDATE_API } from '../utils/DynamicUrl';
+import config from '../../public/config.json';
+import 'react-tooltip/dist/react-tooltip.css';
+import { Tooltip } from 'react-tooltip';
+import 'react-tooltip/dist/react-tooltip.css';
+import MDEditor from '@uiw/react-md-editor';
+import rehypeSanitize from 'rehype-sanitize';
+import Modal from '../components/Modal/Modal';
+import { IoDocumentTextOutline } from 'react-icons/io5';
+import { FiEdit3 } from 'react-icons/fi';
 const Editor = lazy(() => import('../components/Editor/Index'));
 
 export default function ApiDetails() {
@@ -25,7 +34,7 @@ export default function ApiDetails() {
     let navigate = useNavigate();
     const store = useStore();
     let apiDetails: ApiType = store?.api?.routes?.find((item: ApiType) => item?.id === apiId)!;
-    const [open, setOpen] = useState<boolean>(false);
+    let [openModal, setOpenModal] = useState<boolean>(false);
     const [isCopied, setIsCopied] = useState<boolean>(false);
     const [currentOption, setCurrentOption] = useState<string>('');
     const [url, setURL] = useState<string>('');
@@ -257,173 +266,229 @@ export default function ApiDetails() {
         return { __html: apiDetails?.description ? apiDetails?.description : '' };
     };
 
-    return (
-        <div className="w-full h-screen dark:bg-dark-primary-50 bg-white px-5 relative">
-            <div className="flex justify-between items-center pr-10">
-                <div className="flex items-center">
-                    {isMobileWidth && (
-                        <button
-                            onClick={() => store.toggleSidebar()}
-                            className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border border-gray-200 px-1 mr-2 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white"
-                        >
-                            {store.isSidebarOpen ? <VscChromeClose /> : <HiMenuAlt1 />}
-                        </button>
-                    )}
+    console.log(config);
 
-                    <h1 className="py-3 truncate font-medium dark:text-white text-xl sticky top-0 max-w-xl dark:bg-dark-primary-50 flex items-center justify-between">
-                        {apiDetails?.name}
-                    </h1>
-                </div>
-                <button onClick={toggleTheme} className=" dark:text-white">
-                    {theme === 'dark' ? <FaMoon /> : <BsFillSunFill />}
-                </button>
-            </div>
-            <div className="flex items-center pr-10">
-                <button className="pr-2 py-2 rounded-l-md dark:text-primary-400 ">
-                    {ApiMethod(apiDetails?.method!, apiDetails?.method!)}
-                </button>
-                <div className="flex items-center w-full">
-                    <input
-                        type="text"
-                        className="px-2 py-2 flex-1 bg-transparent bg-primary-400 dark:bg-transparent dark:text-primary-400 w-full "
-                        disabled
-                        value={url}
-                    />
-                    <button
-                        onClick={async () => {
-                            await navigator.clipboard.writeText(url);
-                            setIsCopied(true);
-                            setTimeout(() => {
-                                setIsCopied(false);
-                            }, 2000);
-                        }}
-                        className="font-base flex items-center cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 justify-self-end rounded border border-gray-200 px-2 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
-                    >
-                        {!isCopied ? (
-                            <>
-                                <BsClipboard className="mr-2" /> Copy
-                            </>
-                        ) : (
-                            <>
-                                <BsClipboardCheck className="mr-2" /> Copied
-                            </>
+    return (
+        <>
+            <div className="w-full h-screen dark:bg-dark-primary-50 bg-white px-5 relative">
+                <div className="flex justify-between items-center pr-10">
+                    <div className="flex items-center">
+                        {isMobileWidth && (
+                            <button
+                                onClick={() => store.toggleSidebar()}
+                                className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border border-gray-200 px-1 mr-2 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white"
+                            >
+                                {store.isSidebarOpen ? <VscChromeClose /> : <HiMenuAlt1 />}
+                            </button>
                         )}
+
+                        <h1 className="py-3 truncate font-medium dark:text-white text-xl sticky top-0 max-w-xl dark:bg-dark-primary-50 flex items-center justify-between">
+                            {apiDetails?.name}
+                        </h1>
+                    </div>
+                    <div className="flex items-center">
+                        {config.environment === 'development' && (
+                            <button
+                                data-tooltip-id="edit-api"
+                                data-tooltip-content="Edit API"
+                                onClick={() => navigate(UPDATE_API(id!, apiId!))}
+                                className="font-base cursor-pointer lg:text-base font-ubuntu normal-transition py-2 items-end justify-self-end rounded border border-gray-200 px-3 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
+                            >
+                                <FiEdit3 size={18} />
+                                <Tooltip id="edit-api" />
+                            </button>
+                        )}
+                        <button
+                            data-tooltip-id="documentation"
+                            data-tooltip-content="API documentation"
+                            onClick={() => setOpenModal(true)}
+                            className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-2 items-end justify-self-end rounded border border-gray-200 px-3 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
+                        >
+                            <IoDocumentTextOutline size={18} />
+                            <Tooltip id="documentation" />
+                        </button>
+                        <button
+                            data-tooltip-id="copy"
+                            data-tooltip-content="Copy"
+                            onClick={async () => {
+                                await navigator.clipboard.writeText(url);
+                                setIsCopied(true);
+                                setTimeout(() => {
+                                    setIsCopied(false);
+                                }, 2000);
+                            }}
+                            className="font-base flex items-center cursor-pointer lg:font-lg font-ubuntu normal-transition py-2 justify-self-end rounded border border-gray-200 px-2 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
+                        >
+                            {!isCopied ? (
+                                <>
+                                    <BsClipboard size={18} />
+                                    <Tooltip id="copy" />
+                                </>
+                            ) : (
+                                <>
+                                    <BsClipboardCheck size={18} />
+                                </>
+                            )}
+                        </button>
+                        <button
+                            onClick={toggleTheme}
+                            className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition items-end justify-self-end rounded border border-gray-200 p-2 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
+                        >
+                            {theme === 'dark' ? <FaMoon size={18} /> : <BsFillSunFill size={18} />}
+                        </button>
+                    </div>
+                </div>
+                <div className="flex items-center pr-10">
+                    <button className="pr-2 py-2 rounded-l-md dark:text-primary-400 ">
+                        {ApiMethod(apiDetails?.method!, apiDetails?.method!)}
                     </button>
+                    <div className="flex items-center w-full">
+                        <input
+                            type="text"
+                            className="px-2 py-2 flex-1 bg-transparent bg-primary-400 dark:bg-transparent dark:text-primary-400 w-full "
+                            disabled
+                            value={url}
+                        />
+                        <button
+                            onClick={() => makeAPIRequest()}
+                            className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1.5 items-end justify-self-end rounded border border-gray-200 px-3 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
+                        >
+                            Send
+                        </button>
+                    </div>
                 </div>
-                <button
-                    onClick={() => navigate(UPDATE_API(id!, apiId!))}
-                    className="font-base cursor-pointer lg:text-base font-ubuntu normal-transition py-1 items-end justify-self-end rounded border border-gray-200 px-3 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
-                >
-                    Edit
-                </button>
-                <button
-                    onClick={() => makeAPIRequest()}
-                    className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border border-gray-200 px-3 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
-                >
-                    Send
-                </button>
-            </div>
-            <div className="flex items-center mt-5">
-                {apiOptions.map((option) => (
-                    <button
-                        key={option.name}
-                        onClick={() => setCurrentOption(option.name)}
-                        className={
-                            'dark:text-primary-400 mr-4 flex items-center mx-2 py-1 border-b-2 rounded-bl-sm rounded-br-sm ' +
-                            (currentOption === option.name
-                                ? ' border-[#c16630] '
-                                : ' border-transparent')
-                        }
-                    >
-                        <span className="tex-base mr-1">{option.label}</span>
-                        {option.name === 'headers' && apiDetails?.headers?.isRequired && (
-                            <span className="w-1 h-1 rounded-full bg-green-500" />
-                        )}
-                        {option.name === 'body' && apiDetails?.body?.isRequired && (
-                            <span className="w-1 h-1 rounded-full bg-green-500" />
-                        )}
-                        {option.name === 'query' && apiDetails?.query?.isRequired && (
-                            <span className="w-1 h-1 rounded-full bg-green-500" />
-                        )}
-                        {option.name === 'pathVariables' &&
-                            apiDetails?.url?.variables?.isRequired && (
+                <div className="flex items-center mt-5">
+                    {apiOptions.map((option) => (
+                        <button
+                            key={option.name}
+                            onClick={() => setCurrentOption(option.name)}
+                            className={
+                                'dark:text-primary-400 mr-4 flex items-center mx-2 py-1 border-b-2 rounded-bl-sm rounded-br-sm ' +
+                                (currentOption === option.name
+                                    ? ' border-[#c16630] '
+                                    : ' border-transparent')
+                            }
+                        >
+                            <span className="tex-base mr-1">{option.label}</span>
+                            {option.name === 'headers' && apiDetails?.headers?.isRequired && (
                                 <span className="w-1 h-1 rounded-full bg-green-500" />
                             )}
-                    </button>
-                ))}
-            </div>
-            <div className="mt-3">
-                <Suspense fallback={<Loader />}>
-                    <Editor
-                        jsonData={paramsData}
-                        readOnly={false}
-                        height="20vh"
-                        setData={handleSetData}
-                    />
-                </Suspense>
-            </div>
+                            {option.name === 'body' && apiDetails?.body?.isRequired && (
+                                <span className="w-1 h-1 rounded-full bg-green-500" />
+                            )}
+                            {option.name === 'query' && apiDetails?.query?.isRequired && (
+                                <span className="w-1 h-1 rounded-full bg-green-500" />
+                            )}
+                            {option.name === 'pathVariables' &&
+                                apiDetails?.url?.variables?.isRequired && (
+                                    <span className="w-1 h-1 rounded-full bg-green-500" />
+                                )}
+                        </button>
+                    ))}
+                </div>
+                <div className="mt-3">
+                    <Suspense fallback={<Loader />}>
+                        <Editor
+                            jsonData={paramsData}
+                            readOnly={false}
+                            height="20vh"
+                            setData={handleSetData}
+                        />
+                    </Suspense>
+                </div>
 
-            <div className="mt-3">
-                <div className="mt-5">
-                    <div className="flex items-center justify-between">
-                        <div className="mb-3 flex items-center">
-                            <h1 className="font-ubuntu text-base font-medium dark:text-white lg:text-lg">
-                                Response
-                            </h1>
-                            <button
-                                onClick={() => setAPIresponse({})}
-                                className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border border-gray-200 px-3 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
-                            >
-                                <AiOutlineReload />
-                            </button>
-                        </div>
-                        {Object.keys(resultStatus).length ? (
-                            <div className="flex items-center">
-                                <p className="font-ubuntu mr-4 text-base font-semibold dark:font-normal dark:text-white">
-                                    Status:
-                                    <span
-                                        className={
-                                            resultStatus.status?.toString().startsWith('2', 0)
-                                                ? 'ml-1 font-medium text-green-600 dark:font-normal dark:text-green-400'
-                                                : 'ml-1 font-medium text-red-500 dark:font-normal'
-                                        }
-                                    >
-                                        {resultStatus.status} {resultStatus.statusText}
-                                    </span>
-                                </p>
-
-                                <p className="font-ubuntu mr-4 text-base font-semibold dark:font-normal dark:text-white">
-                                    Time:
-                                    <span
-                                        className={
-                                            'ml-1 font-normal text-green-600 dark:font-normal dark:text-green-400'
-                                        }
-                                    >
-                                        {resultStatus.time}
-                                    </span>
-                                </p>
-                                <p className="font-ubuntu mr-4 text-base font-semibold dark:font-normal dark:text-white">
-                                    Size:
-                                    <span
-                                        className={
-                                            'ml-1 font-normal text-green-600 dark:font-normal dark:text-green-400'
-                                        }
-                                    >
-                                        {payloadSize(result)}
-                                    </span>
-                                </p>
+                <div className="mt-3">
+                    <div className="mt-5">
+                        <div className="flex items-center justify-between">
+                            <div className="mb-3 flex items-center">
+                                <h1 className="font-ubuntu text-base font-medium dark:text-white lg:text-lg">
+                                    Response
+                                </h1>
+                                <button
+                                    onClick={() => setAPIresponse({})}
+                                    className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border border-gray-200 px-3 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
+                                >
+                                    <AiOutlineReload />
+                                </button>
                             </div>
-                        ) : null}
+                            {Object.keys(resultStatus).length ? (
+                                <div className="flex items-center">
+                                    <p className="font-ubuntu mr-4 text-base font-semibold dark:font-normal dark:text-white">
+                                        Status:
+                                        <span
+                                            className={
+                                                resultStatus.status?.toString().startsWith('2', 0)
+                                                    ? 'ml-1 font-medium text-green-600 dark:font-normal dark:text-green-400'
+                                                    : 'ml-1 font-medium text-red-500 dark:font-normal'
+                                            }
+                                        >
+                                            {resultStatus.status} {resultStatus.statusText}
+                                        </span>
+                                    </p>
+
+                                    <p className="font-ubuntu mr-4 text-base font-semibold dark:font-normal dark:text-white">
+                                        Time:
+                                        <span
+                                            className={
+                                                'ml-1 font-normal text-green-600 dark:font-normal dark:text-green-400'
+                                            }
+                                        >
+                                            {resultStatus.time}
+                                        </span>
+                                    </p>
+                                    <p className="font-ubuntu mr-4 text-base font-semibold dark:font-normal dark:text-white">
+                                        Size:
+                                        <span
+                                            className={
+                                                'ml-1 font-normal text-green-600 dark:font-normal dark:text-green-400'
+                                            }
+                                        >
+                                            {payloadSize(result)}
+                                        </span>
+                                    </p>
+                                </div>
+                            ) : null}
+                        </div>
+                        {isLoading ? (
+                            <Loader />
+                        ) : (
+                            <Suspense fallback={<Loader />}>
+                                <Editor jsonData={result} readOnly height="55vh" />
+                            </Suspense>
+                        )}
                     </div>
-                    {isLoading ? (
-                        <Loader />
-                    ) : (
-                        <Suspense fallback={<Loader />}>
-                            <Editor jsonData={result} readOnly height="55vh" />
-                        </Suspense>
-                    )}
                 </div>
             </div>
-        </div>
+            <Suspense fallback={<Loader />}>
+                <Modal isOpen={openModal} onClose={() => setOpenModal(!openModal)}>
+                    <div className="dark:bg-dark-primary-50 p-5 w-[60vw] bg-white">
+                        <div className="flex items-start justify-between">
+                            <h1 className="text-lg font-medium dark:text-white">
+                                API Documentation
+                            </h1>
+                            <button
+                                onClick={() => setOpenModal(!openModal)}
+                                className="p-2 rounded-full dark:hover:bg-dark-primary-40 dark:text-white"
+                            >
+                                <VscChromeClose />
+                            </button>
+                        </div>
+
+                        <div className="mt-4">
+                            <MDEditor
+                                value={apiDetails.description}
+                                preview="preview"
+                                commands={[]}
+                                previewOptions={{
+                                    rehypePlugins: [[rehypeSanitize]],
+                                }}
+                                height={650}
+                                extraCommands={[]}
+                            />
+                        </div>
+                    </div>
+                </Modal>
+            </Suspense>
+        </>
     );
 }

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import ApiFolder from '../ApiFolder/Index';
 import { ApiData, SideBarPropsType } from '../../model/type.model';
 import { useNavigate, useParams } from 'react-router-dom';
-import { RiFileEditLine } from 'react-icons/ri';
 import useDeviceWidth from '../../hooks/useDeviceWidth/useDeviceWidth';
 import useStore from '../../store/store';
 import { VscChromeClose } from 'react-icons/vsc';
@@ -10,6 +9,7 @@ import { HiMenuAlt1 } from 'react-icons/hi';
 import { BiArrowBack } from 'react-icons/bi';
 import { ERoutes } from '../../Router/routes.enum';
 import { CREATE_API } from '../../utils/DynamicUrl';
+import config from '../../../public/config.json';
 
 export default function SideBar({ apiId, collectionId, className }: SideBarPropsType) {
     const [apiNames, setApiNames] = useState<string[]>([]);
@@ -85,12 +85,14 @@ export default function SideBar({ apiId, collectionId, className }: SideBarProps
                                 {collection?.collectionName}
                             </span>
                         </div>
-                        <button
-                            onClick={() => navigate(CREATE_API(id!))}
-                            className="justify-self-end cursor-pointer text-sm font-ubuntu normal-transition py-1 items-end rounded border border-gray-200 px-3 ml-1 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white"
-                        >
-                            Add api
-                        </button>
+                        {config.environment === 'development' && (
+                            <button
+                                onClick={() => navigate(CREATE_API(id!))}
+                                className="justify-self-end cursor-pointer text-sm font-ubuntu normal-transition py-1 items-end rounded border border-gray-200 px-3 ml-1 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white"
+                            >
+                                Add api
+                            </button>
+                        )}
                     </div>
                 </div>
                 {/* <div className="px-7 py-2 flex items-center">

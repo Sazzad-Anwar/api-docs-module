@@ -16,7 +16,7 @@ exports.serveApiDocs = void 0;
 const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
 const promises_1 = __importDefault(require("fs/promises"));
-const serveApiDocs = (app, jsonDirectory) => {
+const serveApiDocs = (app, jsonDirectory, env) => {
     let jsonDataDir = jsonDirectory;
     app.use(express_1.default.json());
     app.use(express_1.default.static(path_1.default.join(__dirname, '../dist')));
@@ -24,6 +24,7 @@ const serveApiDocs = (app, jsonDirectory) => {
         let dir = path_1.default.join(__dirname, '../dist/config.json');
         let setUrl = {
             baseUrl: `${req.protocol}://${req.get('host')}`,
+            environment: env,
         };
         try {
             let data = yield promises_1.default.readFile(dir, { encoding: 'utf-8' });

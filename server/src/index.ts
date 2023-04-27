@@ -2,7 +2,11 @@ import express, { Application, NextFunction, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs/promises';
 
-export const serveApiDocs = (app: Application, jsonDirectory: string) => {
+export const serveApiDocs = (
+    app: Application,
+    jsonDirectory: string,
+    env: 'development' | 'production',
+) => {
     let jsonDataDir = jsonDirectory;
 
     app.use(express.json());
@@ -11,6 +15,7 @@ export const serveApiDocs = (app: Application, jsonDirectory: string) => {
         let dir = path.join(__dirname, '../dist/config.json');
         let setUrl = {
             baseUrl: `${req.protocol}://${req.get('host')}`,
+            environment: env,
         };
         try {
             let data = await fs.readFile(dir, { encoding: 'utf-8' });

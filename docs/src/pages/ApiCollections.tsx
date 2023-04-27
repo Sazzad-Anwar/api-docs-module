@@ -11,6 +11,7 @@ import { VscChromeClose } from 'react-icons/vsc';
 import { ApiData } from '../model/type.model';
 import { ERoutes } from '../Router/routes.enum';
 import { API_DETAILS, UPDATE_COLLECTION } from '../utils/DynamicUrl';
+import config from '../../public/config.json';
 const Modal = lazy(() => import('../components/Modal/Modal'));
 
 export default function ApiCollections() {
@@ -28,8 +29,11 @@ export default function ApiCollections() {
         <>
             <div className="w-full h-screen dark:bg-dark-primary-50 bg-white px-5 relative">
                 <div className="absolute right-10 top-5 z-10">
-                    <button onClick={toggleTheme} className=" dark:text-white">
-                        {theme === 'dark' ? <FaMoon /> : <BsFillSunFill />}
+                    <button
+                        onClick={toggleTheme}
+                        className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1.5 items-end justify-self-end rounded border border-gray-200 px-2 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
+                    >
+                        {theme === 'dark' ? <FaMoon size={18} /> : <BsFillSunFill size={18} />}
                     </button>
                 </div>
                 <div className="container mx-auto pt-10">
@@ -59,16 +63,18 @@ export default function ApiCollections() {
                                         {collection?.collectionName}
                                     </span>
                                 </div>
-                                <button
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        setOpenModal(true);
-                                        setSelectedCollection(collection);
-                                    }}
-                                    className="p-2 hover:bg-gray-200 group-hover:text-[#c16630] hover:dark:bg-gray-800 normal-transition rounded-full dark:text-white active:dark:bg-transparent"
-                                >
-                                    <MdMoreVert />
-                                </button>
+                                {config.environment === 'development' && (
+                                    <button
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            setOpenModal(true);
+                                            setSelectedCollection(collection);
+                                        }}
+                                        className="p-2 hover:bg-gray-200 group-hover:text-[#c16630] hover:dark:bg-gray-800 normal-transition rounded-full dark:text-white active:dark:bg-transparent"
+                                    >
+                                        <MdMoreVert />
+                                    </button>
+                                )}
                             </div>
                         ))}
                     </div>

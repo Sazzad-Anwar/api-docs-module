@@ -13,6 +13,8 @@ import { VscChromeClose } from 'react-icons/vsc';
 import useStore from '../store/store';
 import { ERoutes } from '../Router/routes.enum';
 import { API_DETAILS } from '../utils/DynamicUrl';
+import MDEditor from '@uiw/react-md-editor';
+import rehypeSanitize from 'rehype-sanitize';
 const Modal = lazy(() => import('../components/Modal/Modal'));
 const Editor = lazy(() => import('../components/Editor/Index'));
 
@@ -23,6 +25,8 @@ export default function UpdateApi() {
     let [api, setApi] = useState<ApiType>({} as ApiType);
     let [isEdited, setIsEdited] = useState<boolean>(false);
     let [openModal, setOpenModal] = useState<boolean>(false);
+    let [activeTab, setActiveTab] = useState<'api' | 'description'>('api');
+    let [description, setDescription] = useState<string>('');
     let store = useStore();
     let params = useParams();
 
@@ -32,7 +36,13 @@ export default function UpdateApi() {
         } else {
             navigate(ERoutes.API_COLLECTIONS);
         }
-    }, []);
+
+        if (description) {
+            setIsEdited(true);
+        } else {
+            setDescription(api.description!);
+        }
+    }, [description]);
 
     let handleSetData = (value: string): void => {
         setApiDetailsDoc(JSON.stringify(value));
@@ -79,21 +89,64 @@ export default function UpdateApi() {
                         </span>
                     </h1>
                 </div>
-                <Suspense fallback={<Loader />}>
-                    <Editor jsonData={api} readOnly={false} height="70vh" setData={handleSetData} />
-                </Suspense>
+                <div className="my-2 flex items-center">
+                    <button
+                        onClick={() => setActiveTab('api')}
+                        className={
+                            'font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded px-2  font-medium hover:shadow-lg active:scale-95 dark:text-white mt-3 disabled:dark:border-blue-900 disabled:bg-blue-600 disabled:bg-opacity-20 disabled:text-gray-400 disabled:cursor-not-allowed disabled:active:scale-100 ' +
+                            (activeTab === 'api' && 'bg-blue-600 dark:border-blue-600 text-white')
+                        }
+                    >
+                        API
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('description')}
+                        className={
+                            'font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded px-2 ml-2 font-medium hover:shadow-lg active:scale-95 mt-3 dark:text-white disabled:dark:border-blue-900 disabled:bg-blue-600 disabled:bg-opacity-20 disabled:text-gray-400 disabled:cursor-not-allowed disabled:active:scale-100 ' +
+                            (activeTab === 'description' &&
+                                'bg-blue-600 dark:border-blue-600 text-white')
+                        }
+                    >
+                        Description
+                    </button>
+                </div>
+                {activeTab === 'api' ? (
+                    <Suspense fallback={<Loader />}>
+                        <Editor
+                            jsonData={api}
+                            readOnly={false}
+                            height="60vh"
+                            setData={handleSetData}
+                        />
+                    </Suspense>
+                ) : (
+                    <MDEditor
+                        value={description}
+                        onChange={(value) => setDescription(value!)}
+                        previewOptions={{
+                            rehypePlugins: [[rehypeSanitize]],
+                        }}
+                        height={480}
+                    />
+                )}
 
                 <button
                     disabled={!isEdited}
                     onClick={() => {
+                        let updatedData;
                         if (apiDetailsDoc !== '') {
-                            store.updateApiDetails(
-                                params?.apiId!,
-                                params?.id!,
-                                JSON.parse(apiDetailsDoc),
-                            );
-                            navigate(API_DETAILS(params?.id!, params?.apiId!));
+                            let jsonData: ApiType = JSON.parse(JSON.parse(apiDetailsDoc));
+                            updatedData = { ...jsonData, description };
+                        } else {
+                            updatedData = { ...api, description };
                         }
+
+                        store.updateApiDetails(
+                            params?.apiId!,
+                            params?.id!,
+                            JSON.stringify(updatedData),
+                        );
+                        navigate(API_DETAILS(params?.id!, params?.apiId!));
                     }}
                     className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border border-gray-200 px-14 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white mt-3 disabled:dark:border-blue-900 disabled:bg-blue-600 disabled:bg-opacity-20 disabled:text-gray-400 disabled:cursor-not-allowed disabled:active:scale-100"
                 >
