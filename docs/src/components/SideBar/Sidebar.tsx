@@ -85,7 +85,7 @@ export default function SideBar({ apiId, collectionId, className }: SideBarProps
                                 {collection?.collectionName}
                             </span>
                         </div>
-                        {config.environment === 'development' && (
+                        {store.env !== 'production' && (
                             <button
                                 onClick={() => navigate(CREATE_API(id!))}
                                 className="justify-self-end cursor-pointer text-sm font-ubuntu normal-transition py-1 items-end rounded border border-gray-200 px-3 ml-1 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white"

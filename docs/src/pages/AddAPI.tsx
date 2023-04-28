@@ -16,6 +16,7 @@ import { API_DETAILS } from '../utils/DynamicUrl';
 import MDEditor from '@uiw/react-md-editor';
 import rehypeSanitize from 'rehype-sanitize';
 import { ERoutes } from '../Router/routes.enum';
+import Error from '../components/Error/Error';
 const Modal = lazy(() => import('../components/Modal/Modal'));
 const Editor = lazy(() => import('../components/Editor/Index'));
 
@@ -23,18 +24,22 @@ export default function AddAPI() {
     let { theme, toggleTheme } = useThemeToggler();
     let navigate = useNavigate();
     let [apiDetailsDoc, setApiDetailsDoc] = useState<string>('');
-    let [api, setApi] = useState<ApiType>({} as ApiType);
     let [isEdited, setIsEdited] = useState<boolean>(false);
     let [openModal, setOpenModal] = useState<boolean>(false);
     let [activeTab, setActiveTab] = useState<'api' | 'description'>('api');
     let [description, setDescription] = useState<string>('');
     let store = useStore();
     let params = useParams();
+    let id = uuid();
 
     let handleSetData = (value: string): void => {
         setApiDetailsDoc(JSON.stringify(value));
         setIsEdited(true);
     };
+
+    if (store.env === 'production') {
+        return <Error message="You have no permission" />;
+    }
 
     return (
         <div className="h-screen w-full dark:bg-dark-primary-50 relative">
@@ -121,7 +126,6 @@ export default function AddAPI() {
                     disabled={!isEdited}
                     onClick={() => {
                         if (apiDetailsDoc !== '') {
-                            let id = uuid();
                             let jsonData: ApiType = JSON.parse(JSON.parse(apiDetailsDoc));
                             let updatedData = { ...jsonData, description, id };
                             store.addApi(params?.id!, id, JSON.stringify(updatedData!));

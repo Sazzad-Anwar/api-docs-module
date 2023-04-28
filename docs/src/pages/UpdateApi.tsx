@@ -15,6 +15,7 @@ import { ERoutes } from '../Router/routes.enum';
 import { API_DETAILS } from '../utils/DynamicUrl';
 import MDEditor from '@uiw/react-md-editor';
 import rehypeSanitize from 'rehype-sanitize';
+import Error from '../components/Error/Error';
 const Modal = lazy(() => import('../components/Modal/Modal'));
 const Editor = lazy(() => import('../components/Editor/Index'));
 
@@ -48,6 +49,10 @@ export default function UpdateApi() {
         setApiDetailsDoc(JSON.stringify(value));
         setIsEdited(true);
     };
+
+    if (store.env === 'production') {
+        return <Error message="You have no permission" />;
+    }
 
     return (
         <div className="h-screen w-full dark:bg-dark-primary-50 relative">

@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import useStore from '../store/store';
 import { ERoutes } from '../Router/routes.enum';
 import { useEffect } from 'react';
-import api from '../assets/APi.json';
+import api from '../utils/api';
+import config from '../../public/config.json';
 
 export default function Home() {
     let { theme, toggleTheme } = useThemeToggler();

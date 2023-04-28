@@ -13,6 +13,7 @@ import { HiOutlineCode } from 'react-icons/hi';
 import { VscChromeClose } from 'react-icons/vsc';
 import useStore from '../store/store';
 import { ERoutes } from '../Router/routes.enum';
+import Error from '../components/Error/Error';
 const Modal = lazy(() => import('../components/Modal/Modal'));
 const Editor = lazy(() => import('../components/Editor/Index'));
 
@@ -40,6 +41,10 @@ export default function AddApiCollection() {
         setApiDetailsDoc(JSON.stringify(updatedJSON));
         setIsEdited(true);
     };
+
+    if (store.env === 'production') {
+        return <Error message="You have no permission" />;
+    }
 
     return (
         <div className="h-screen w-full dark:bg-dark-primary-50 relative">

@@ -23,6 +23,7 @@ export default function ApiCollections() {
 
     useEffect(() => {
         store.getCollection();
+        store.getEnvironment();
     }, []);
 
     return (
@@ -37,12 +38,14 @@ export default function ApiCollections() {
                     </button>
                 </div>
                 <div className="container mx-auto pt-10">
-                    <button
-                        onClick={() => navigate(ERoutes.CREATE_API_COLLECTION)}
-                        className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border border-gray-200 px-3 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white mb-5"
-                    >
-                        Create Collection
-                    </button>
+                    {store.env !== 'production' && (
+                        <button
+                            onClick={() => navigate(ERoutes.CREATE_API_COLLECTION)}
+                            className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border border-gray-200 px-3 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white mb-5"
+                        >
+                            Create Collection
+                        </button>
+                    )}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
                         {store?.apiCollections?.map((collection) => (
                             <div
@@ -63,7 +66,7 @@ export default function ApiCollections() {
                                         {collection?.collectionName}
                                     </span>
                                 </div>
-                                {config.environment === 'development' && (
+                                {store.env !== 'production' && (
                                     <button
                                         onClick={(event) => {
                                             event.stopPropagation();

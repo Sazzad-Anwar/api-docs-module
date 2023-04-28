@@ -4,11 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const api_docs_1 = require("@sazzad/api-docs");
+const api_docs_1 = require("@sazzad-anwar/api-docs");
 const path_1 = __importDefault(require("path"));
 const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
-const port = 5000;
+const port = 4000;
 let dir = path_1.default.join(__dirname, '../jsonDri.json');
 app.use((0, cors_1.default)());
 app.get('/', (req, res) => {

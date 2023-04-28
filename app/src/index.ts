@@ -1,10 +1,10 @@
 import express, { Express, Request, Response } from 'express';
-import { serveApiDocs } from '@sazzad/api-docs';
+import { serveApiDocs } from '@sazzad-anwar/api-docs';
 import path from 'path';
 import cors from 'cors';
 
 const app: Express = express();
-const port = 5000;
+const port = 4000;
 
 let dir = path.join(__dirname, '../jsonDri.json');
 

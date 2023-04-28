@@ -262,10 +262,6 @@ export default function ApiDetails() {
         return payload_size_kb > 1 ? `${payload_size_kb} KB` : `${string_length} B`;
     };
 
-    const description = () => {
-        return { __html: apiDetails?.description ? apiDetails?.description : '' };
-    };
-
     return (
         <>
             <div className="w-full h-screen dark:bg-dark-primary-50 bg-white px-5 relative">
@@ -285,7 +281,7 @@ export default function ApiDetails() {
                         </h1>
                     </div>
                     <div className="flex items-center">
-                        {config.environment === 'development' && (
+                        {store.env !== 'production' && (
                             <button
                                 data-tooltip-id="edit-api"
                                 data-tooltip-content="Edit API"
@@ -474,7 +470,7 @@ export default function ApiDetails() {
 
                         <div className="mt-4">
                             <MDEditor
-                                value={apiDetails.description}
+                                value={apiDetails?.description}
                                 preview="preview"
                                 commands={[]}
                                 previewOptions={{

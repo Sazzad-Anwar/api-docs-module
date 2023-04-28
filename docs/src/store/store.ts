@@ -7,7 +7,9 @@ import api from '../utils/api';
 type Store = {
     isSidebarOpen: boolean;
     api: ApiData;
+    env: 'production' | 'development';
     apiCollections: ApiData[];
+    getEnvironment: () => void;
     getCollection: () => void;
     addApiCollection: (apiData: string) => void;
     updateApiCollection: (apiData: string) => void;
@@ -20,12 +22,28 @@ type Store = {
 
 const useStore = create<Store>((set) => ({
     isSidebarOpen: false,
+    env: 'development',
     apiCollections: localStorage.getItem('apiCollections')
         ? JSON.parse(localStorage.getItem('apiCollections')!)
         : [],
     api: localStorage.getItem('apiDocDetails')
         ? JSON.parse(localStorage.getItem('apiDocDetails')!)
         : ({} as ApiData),
+    getEnvironment: async () => {
+        try {
+            let { data } = await api.get('/api-docs/api/env');
+            set((state) => ({
+                ...state,
+                env: data && data.data,
+            }));
+        } catch (error) {
+            console.log(error);
+            set((state) => ({
+                ...state,
+                env: 'development',
+            }));
+        }
+    },
     getCollection: async () => {
         try {
             let { data } = await api.get('/api-docs/api/collections');
