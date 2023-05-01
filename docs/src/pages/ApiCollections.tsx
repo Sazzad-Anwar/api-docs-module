@@ -11,7 +11,7 @@ import { VscChromeClose } from 'react-icons/vsc';
 import { ApiData } from '../model/type.model';
 import { ERoutes } from '../Router/routes.enum';
 import { API_DETAILS, UPDATE_COLLECTION } from '../utils/DynamicUrl';
-import config from '../../public/config.json';
+import { CiFolderOn } from 'react-icons/ci';
 const Modal = lazy(() => import('../components/Modal/Modal'));
 
 export default function ApiCollections() {
@@ -29,23 +29,31 @@ export default function ApiCollections() {
     return (
         <>
             <div className="w-full h-screen dark:bg-dark-primary-50 bg-white px-5 relative">
-                <div className="absolute right-10 top-5 z-10">
-                    <button
-                        onClick={toggleTheme}
-                        className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1.5 items-end justify-self-end rounded border border-gray-200 px-2 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
-                    >
-                        {theme === 'dark' ? <FaMoon size={18} /> : <BsFillSunFill size={18} />}
-                    </button>
-                </div>
                 <div className="container mx-auto pt-10">
-                    {store.env !== 'production' && (
-                        <button
-                            onClick={() => navigate(ERoutes.CREATE_API_COLLECTION)}
-                            className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border border-gray-200 px-3 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white mb-5"
-                        >
-                            Create Collection
-                        </button>
-                    )}
+                    <div className="flex items-center justify-between">
+                        <h1 className="dark:text-white text-lg">API collections</h1>
+                        <div className="flex items-center">
+                            <button
+                                onClick={toggleTheme}
+                                className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1.5 items-end justify-self-end rounded border border-gray-200 px-2 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
+                            >
+                                {theme === 'dark' ? (
+                                    <FaMoon size={18} />
+                                ) : (
+                                    <BsFillSunFill size={18} />
+                                )}
+                            </button>
+                            {store.env !== 'production' && (
+                                <button
+                                    onClick={() => navigate(ERoutes.CREATE_API_COLLECTION)}
+                                    className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border border-gray-200 px-3 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white mb-5"
+                                >
+                                    Create Collection
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
                         {store?.apiCollections?.map((collection) => (
                             <div
@@ -58,7 +66,7 @@ export default function ApiCollections() {
                                 className="p-5 rounded-md border border-gray-200 dark:border-gray-700 group shadow-none hover:shadow-md normal-transition hover:border-[#c16630] dark:hover:border-[#c16630] flex items-center justify-between cursor-pointer"
                             >
                                 <div className="flex items-center">
-                                    <SiPostman
+                                    <CiFolderOn
                                         size={30}
                                         className="dark:text-white text-black group-hover:text-[#c16630] mr-2"
                                     />
