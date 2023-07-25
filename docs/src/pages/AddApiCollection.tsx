@@ -24,22 +24,30 @@ export default function AddApiCollection() {
     let [api] = useState<ApiData>(ApiModel);
     let [isEdited, setIsEdited] = useState<boolean>(false);
     let [openModal, setOpenModal] = useState<boolean>(false);
+    let [hasError, setHasError] = useState<boolean>(false);
+    let [hasSyntaxError, setHasSyntaxError] = useState<boolean>(false);
     let store = useStore();
 
     let handleSetData = (value: string): void => {
-        let jsonValue = JSON.parse(value) as ApiData;
-        let idGeneratedRoutes = jsonValue?.routes?.map((route) => ({
-            ...route,
-            id: uuid(),
-        }));
-        let updatedJSON: ApiData = {
-            id: uuid(),
-            collectionName: jsonValue?.collectionName,
-            baseUrl: jsonValue?.baseUrl,
-            routes: idGeneratedRoutes,
-        };
-        setApiDetailsDoc(JSON.stringify(updatedJSON));
-        setIsEdited(true);
+        try {
+            let jsonValue = JSON.parse(value) as ApiData;
+            let idGeneratedRoutes = jsonValue?.routes?.map((route) => ({
+                ...route,
+                id: uuid(),
+            }));
+            let updatedJSON: ApiData = {
+                id: uuid(),
+                collectionName: jsonValue?.collectionName,
+                baseUrl: jsonValue?.baseUrl,
+                routes: idGeneratedRoutes,
+            };
+            setApiDetailsDoc(JSON.stringify(updatedJSON));
+            setIsEdited(true);
+            setHasSyntaxError(false);
+        } catch (error: any) {
+            setHasSyntaxError(true);
+            console.log(error.message);
+        }
     };
 
     if (store.env === 'production') {
@@ -47,10 +55,7 @@ export default function AddApiCollection() {
     }
 
     return (
-        <div className="h-screen w-full dark:bg-dark-primary-50 relative">
-            <button onClick={toggleTheme} className="absolute right-5 top-5 dark:text-white z-10">
-                {theme === 'dark' ? <FaMoon /> : <BsFillSunFill />}
-            </button>
+        <div className="h-screen w-full dark:bg-dark-primary-50">
             <div className="container mx-auto pt-10">
                 <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center">
@@ -66,27 +71,62 @@ export default function AddApiCollection() {
                             Create API collection:
                         </h1>
                     </div>
-                    <button
-                        className="font-base flex items-center cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 justify-self-end rounded border border-gray-200 px-2 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
-                        onClick={() => setOpenModal(true)}
-                    >
-                        <HiOutlineCode size={20} className="mr-1" />
-                        <span className="hidden lg:block">Show structure</span>
-                    </button>
+                    <div className="flex items-center">
+                        <button
+                            className="font-base flex items-center cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 justify-self-end rounded border bg-primary px-2  font-medium hover:shadow-lg active:scale-95 dark:border-primary text-white ml-2"
+                            onClick={() => setOpenModal(true)}
+                        >
+                            <HiOutlineCode size={20} className="mr-1" />
+                            <span className="hidden lg:block">Show structure</span>
+                        </button>
+                        <button
+                            onClick={toggleTheme}
+                            className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1.5 items-end justify-self-end rounded border bg-primary px-2  font-medium hover:shadow-lg active:scale-95 dark:border-primary text-white ml-2"
+                        >
+                            {theme === 'dark' ? <FaMoon size={18} /> : <BsFillSunFill size={18} />}
+                        </button>
+                    </div>
                 </div>
                 <Suspense fallback={<Loader />}>
-                    <Editor jsonData={api} readOnly={false} height="80vh" setData={handleSetData} />
+                    <div
+                        className={
+                            hasError
+                                ? 'border-2 overflow-hidden border-red-600'
+                                : 'border-2 border-transparent'
+                        }
+                    >
+                        <Editor
+                            jsonData={api}
+                            readOnly={false}
+                            height="60vh"
+                            setData={handleSetData}
+                        />
+                    </div>
+                    {hasError && (
+                        <span className="text-red-600 text-sm block my-2">
+                            *collectionName, baseUrl, name, path, method can not be empty*
+                        </span>
+                    )}
                 </Suspense>
 
                 <button
-                    disabled={!isEdited}
+                    disabled={!isEdited || hasSyntaxError}
                     onClick={() => {
                         if (apiDetailsDoc !== '') {
-                            store.addApiCollection(apiDetailsDoc);
-                            navigate(ERoutes.API_COLLECTIONS);
+                            let doc: ApiData = JSON.parse(apiDetailsDoc);
+                            let hasErrorStructure = doc.routes.filter(
+                                (api) => !api.method || !api.name || !api.url.path,
+                            );
+                            if (!doc.collectionName || !doc.baseUrl || hasErrorStructure.length) {
+                                setHasError(true);
+                                setTimeout(() => setHasError(false), 3000);
+                            } else {
+                                store.addApiCollection(apiDetailsDoc);
+                                navigate(ERoutes.API_COLLECTIONS);
+                            }
                         }
                     }}
-                    className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border border-gray-200 px-14 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white mt-3 disabled:dark:border-blue-900 disabled:bg-blue-600 disabled:bg-opacity-20 disabled:text-gray-400 disabled:cursor-not-allowed disabled:active:scale-100"
+                    className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border bg-primary px-14  font-medium hover:shadow-lg active:scale-95 dark:border-primary text-white mt-3 disabled:dark:border-primary disabled: disabled:bg-opacity-20 disabled:text-gray-400 disabled:cursor-not-allowed disabled:active:scale-100"
                 >
                     Save
                 </button>

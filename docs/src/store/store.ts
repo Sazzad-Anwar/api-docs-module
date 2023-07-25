@@ -1,7 +1,6 @@
-import { create } from 'zustand';
-import { ApiData, ApiType } from '../model/type.model';
-import { ApiModel } from '../model/api-model';
 import { v4 as uuid } from 'uuid';
+import { create } from 'zustand';
+import { ApiData } from '../model/type.model';
 import api from '../utils/api';
 
 type Store = {
@@ -16,7 +15,8 @@ type Store = {
     addApi: (collectionId: string, id: string, apiData: string) => void;
     toggleSidebar: () => void;
     getApiDetails: (id: string) => void;
-    deleteApiDetails: (id: string) => void;
+    deleteApi: (id: string, collectionId: string) => void;
+    deleteApiCollection: (id: string) => void;
     updateApiDetails: (id: string, collectionId: string, apiData: string) => void;
 };
 
@@ -26,9 +26,7 @@ const useStore = create<Store>((set) => ({
     apiCollections: localStorage.getItem('apiCollections')
         ? JSON.parse(localStorage.getItem('apiCollections')!)
         : [],
-    api: localStorage.getItem('apiDocDetails')
-        ? JSON.parse(localStorage.getItem('apiDocDetails')!)
-        : ({} as ApiData),
+    api: {} as ApiData,
     getEnvironment: async () => {
         try {
             let { data } = await api.get('/api-docs/api/env');
@@ -157,10 +155,9 @@ const useStore = create<Store>((set) => ({
             : [];
         let apiDetails: ApiData =
             apiCollections?.find((item) => item?.id === id) ?? ({} as ApiData);
-        localStorage.setItem('apiDocDetails', JSON.stringify(apiDetails));
         set((state) => ({
             ...state,
-            api: apiCollections?.find((item) => item?.id === id),
+            api: apiDetails,
         }));
     },
     updateApiDetails: async (id: string, collectionId: string, apiData: string) => {
@@ -198,7 +195,7 @@ const useStore = create<Store>((set) => ({
             }));
         }
     },
-    deleteApiDetails: async (id: string) => {
+    deleteApiCollection: async (id: string) => {
         try {
             let apiCollections: ApiData[] = localStorage.getItem('apiCollections')
                 ? JSON.parse(localStorage.getItem('apiCollections')!)
@@ -209,6 +206,36 @@ const useStore = create<Store>((set) => ({
                 await api.put('/api-docs/api/collections', {
                     collection: JSON.stringify(apiCollections),
                 });
+                set((state) => ({
+                    ...state,
+                    apiCollections,
+                }));
+            }
+        } catch (error) {
+            console.log(error);
+            set((state) => ({
+                ...state,
+                apiCollections: [],
+            }));
+        }
+    },
+    deleteApi: async (id: string, collectionId: string) => {
+        try {
+            let apiCollections: ApiData[] = localStorage.getItem('apiCollections')
+                ? JSON.parse(localStorage.getItem('apiCollections')!)
+                : [];
+            if (apiCollections.find((item) => item.id === collectionId)) {
+                apiCollections = apiCollections.map((item) => {
+                    if (item.id === collectionId) {
+                        item.routes = item.routes.filter((route) => route.id !== id);
+                    }
+                    return item;
+                });
+                localStorage.setItem('apiCollections', JSON.stringify(apiCollections));
+                await api.put('/api-docs/api/collections', {
+                    collection: JSON.stringify(apiCollections),
+                });
+                console.log(apiCollections);
                 set((state) => ({
                     ...state,
                     apiCollections,

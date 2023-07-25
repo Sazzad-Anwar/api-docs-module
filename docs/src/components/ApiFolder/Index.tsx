@@ -1,9 +1,11 @@
 import { FaFolder, FaFolderOpen } from 'react-icons/fa';
 import CapitalLetterWord from '../../utils/CapitalLetterWord';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ApiType } from '../../model/type.model';
 import { API_DETAILS } from '../../utils/DynamicUrl';
+import { RiDeleteBin6Fill } from 'react-icons/ri';
+import useStore from '../../store/store';
 
 export const ApiMethod = (method: string, name: string) => {
     switch (method) {
@@ -46,6 +48,7 @@ export default function ApiFolder({
     let [isOpen, setIsOpen] = useState<boolean>(false);
     let navigate = useNavigate();
     let params = useParams();
+    const store = useStore();
 
     useEffect(() => {
         if (api.find((item) => item.id === params?.apiId && item.isGrouped)) {
@@ -56,7 +59,7 @@ export default function ApiFolder({
     }, [params]);
 
     return (
-        <div className={'w-auto py-2 ' + className}>
+        <div className={apiName && 'w-auto py-2 ' + className}>
             {apiName && (
                 <button
                     onClick={() => setIsOpen(!isOpen)}
@@ -73,7 +76,7 @@ export default function ApiFolder({
             {api.map((apiItem) => {
                 if (apiItem?.isGrouped && apiItem?.groupName === apiName) {
                     return (
-                        <button
+                        <div
                             key={apiItem?.id}
                             className={
                                 (isOpen
@@ -82,31 +85,51 @@ export default function ApiFolder({
                                 ' ml-2 pl-4 dark:text-white block text-left truncate border-l dark:border-gray-500  hover:border-dark-primary-50 dark:hover:border-white hover:dark:text-gray-400 normal-transition rounded-r-md group' +
                                 (params?.apiId === apiItem?.id
                                     ? ' dark:border-white border-dark-primary-50 bg-gray-100  dark:bg-dark-primary-50 text-base'
-                                    : 'text-base border-gray-300')
+                                    : 'text-base border-gray-300') +
+                                ' flex justify-between items-center w-full'
                             }
-                            onClick={() => {
-                                navigate(API_DETAILS(params?.id!, apiItem?.id!));
-                            }}
                         >
-                            <span className="ml-2">{apiItem.name}</span>
-                        </button>
+                            <button
+                                onClick={() => {
+                                    navigate(API_DETAILS(params?.id!, apiItem?.id!));
+                                }}
+                            >
+                                <span className="ml-2">{apiItem.name}</span>
+                            </button>
+                            <button
+                                onClick={() => {}}
+                                className="justify-self-end cursor-pointer text-sm font-ubuntu normal-transition py-1 items-end rounded border border-gray-200 px-1 mr-2 bg-primary font-medium hover:shadow-lg active:scale-95 dark:border-primary text-white"
+                            >
+                                <RiDeleteBin6Fill />
+                            </button>
+                        </div>
                     );
                 } else {
                     return (
-                        <button
-                            key={apiItem?.id}
+                        <div
                             className={
-                                'h-full w-full py-2 pt-2 mt-2 dark:text-white block text-left truncate hover:dark:text-gray-400 normal-transition rounded-r-md group ' +
+                                'h-full w-full pl-2 py-2 pt-2 dark:text-white block text-left truncate hover:dark:text-gray-400 normal-transition rounded-r-md group ' +
                                 (params?.apiId === apiItem?.id
                                     ? '  bg-gray-100 dark:bg-dark-primary-50 text-base'
-                                    : ' text-base')
+                                    : ' text-base') +
+                                ' flex justify-between items-center w-full'
                             }
-                            onClick={() => {
-                                navigate(API_DETAILS(params?.id!, apiItem?.id!));
-                            }}
+                            key={apiItem?.id}
                         >
-                            <span className="ml-2">{apiItem.name}</span>
-                        </button>
+                            <button
+                                onClick={() => {
+                                    navigate(API_DETAILS(params?.id!, apiItem?.id!));
+                                }}
+                            >
+                                <span className="ml-2">{apiItem.name}</span>
+                            </button>
+                            <button
+                                onClick={() => console.log(params)}
+                                className="justify-self-end cursor-pointer text-sm font-ubuntu normal-transition py-1 items-end rounded border border-gray-200 px-1 mr-2 bg-primary font-medium hover:shadow-lg active:scale-95 dark:border-primary text-white"
+                            >
+                                <RiDeleteBin6Fill />
+                            </button>
+                        </div>
                     );
                 }
             })}

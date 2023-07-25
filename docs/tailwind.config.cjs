@@ -9,19 +9,19 @@ module.exports = {
     extend: {},
     textColor: theme => ({
       ...theme('colors'),
-      "primary-400": "#F9F9F9",
+      "primary": "#EF5B25",
       "dark-primary-40": "#262626",
       "dark-primary-50": "#212121",
     }),
     backgroundColor: theme => ({
       ...theme('colors'),
-      "primary-400": "#F9F9F9",
+      "primary": "#EF5B25",
       "dark-primary-40": "#262626",
       "dark-primary-50": "#212121",
     }),
     borderColor: theme => ({
       ...theme('colors'),
-      "primary-400": "#F9F9F9",
+      "primary": "#EF5B25",
       "dark-primary-40": "#262626",
       "dark-primary-50": "#212121",
     })

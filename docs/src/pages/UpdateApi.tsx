@@ -28,6 +28,7 @@ export default function UpdateApi() {
     let [openModal, setOpenModal] = useState<boolean>(false);
     let [activeTab, setActiveTab] = useState<'api' | 'description'>('api');
     let [description, setDescription] = useState<string>('');
+    let [hasError, setHasError] = useState<boolean>(false);
     let store = useStore();
     let params = useParams();
 
@@ -55,10 +56,7 @@ export default function UpdateApi() {
     }
 
     return (
-        <div className="h-screen w-full dark:bg-dark-primary-50 relative">
-            <button onClick={toggleTheme} className="absolute right-5 top-5 dark:text-white z-10">
-                {theme === 'dark' ? <FaMoon /> : <BsFillSunFill />}
-            </button>
+        <div className="h-screen w-full dark:bg-dark-primary-50">
             <div className="container mx-auto pt-10">
                 <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center">
@@ -72,13 +70,21 @@ export default function UpdateApi() {
                         </button>
                         <h1 className="text-xl dark:text-gray-200 font-medium mb-0">Update Api</h1>
                     </div>
-                    <button
-                        className="font-base flex items-center cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 justify-self-end rounded border border-gray-200 px-2 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white ml-2"
-                        onClick={() => setOpenModal(true)}
-                    >
-                        <HiOutlineCode size={20} className="mr-1" />
-                        <span className="hidden lg:block">Show structure</span>
-                    </button>
+                    <div className="flex items-center">
+                        <button
+                            className="font-base flex items-center cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 justify-self-end rounded border  px-2 bg-primary font-medium hover:shadow-lg active:scale-95 dark:border-primary text-white ml-2"
+                            onClick={() => setOpenModal(true)}
+                        >
+                            <HiOutlineCode size={20} className="mr-1" />
+                            <span className="hidden lg:block">Show structure</span>
+                        </button>
+                        <button
+                            onClick={toggleTheme}
+                            className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1.5 items-end justify-self-end rounded border  px-2 bg-primary font-medium hover:shadow-lg active:scale-95 dark:border-primary text-white ml-2"
+                        >
+                            {theme === 'dark' ? <FaMoon size={18} /> : <BsFillSunFill size={18} />}
+                        </button>
+                    </div>
                 </div>
                 <div className="my-3">
                     <h1 className="dark:text-white text-lg mb-1">
@@ -98,8 +104,8 @@ export default function UpdateApi() {
                     <button
                         onClick={() => setActiveTab('api')}
                         className={
-                            'font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded px-2  font-medium hover:shadow-lg active:scale-95 dark:text-white mt-3 disabled:dark:border-blue-900 disabled:bg-blue-600 disabled:bg-opacity-20 disabled:text-gray-400 disabled:cursor-not-allowed disabled:active:scale-100 ' +
-                            (activeTab === 'api' && 'bg-blue-600 dark:border-blue-600 text-white')
+                            'font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded px-2  font-medium hover:shadow-lg active:scale-95 dark:text-white mt-3 disabled:dark:border-primary disabled:bg-primary disabled:bg-opacity-20 disabled:text-gray-400 disabled:cursor-not-allowed disabled:active:scale-100 ' +
+                            (activeTab === 'api' && 'bg-primary dark:border-primary text-white')
                         }
                     >
                         API
@@ -107,9 +113,9 @@ export default function UpdateApi() {
                     <button
                         onClick={() => setActiveTab('description')}
                         className={
-                            'font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded px-2 ml-2 font-medium hover:shadow-lg active:scale-95 mt-3 dark:text-white disabled:dark:border-blue-900 disabled:bg-blue-600 disabled:bg-opacity-20 disabled:text-gray-400 disabled:cursor-not-allowed disabled:active:scale-100 ' +
+                            'font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded px-2 ml-2 font-medium hover:shadow-lg active:scale-95 mt-3 dark:text-white disabled:dark:border-primary disabled:bg-primary disabled:bg-opacity-20 disabled:text-gray-400 disabled:cursor-not-allowed disabled:active:scale-100 ' +
                             (activeTab === 'description' &&
-                                'bg-blue-600 dark:border-blue-600 text-white')
+                                'bg-primary dark:border-primary text-white')
                         }
                     >
                         Description
@@ -117,12 +123,25 @@ export default function UpdateApi() {
                 </div>
                 {activeTab === 'api' ? (
                     <Suspense fallback={<Loader />}>
-                        <Editor
-                            jsonData={api}
-                            readOnly={false}
-                            height="60vh"
-                            setData={handleSetData}
-                        />
+                        <div
+                            className={
+                                hasError
+                                    ? 'border-2 overflow-hidden border-red-600'
+                                    : 'border-2 border-transparent'
+                            }
+                        >
+                            <Editor
+                                jsonData={api}
+                                readOnly={false}
+                                height="60vh"
+                                setData={handleSetData}
+                            />
+                        </div>
+                        {hasError && (
+                            <span className="text-red-600 text-sm block my-2">
+                                *name, path, method can not be empty*
+                            </span>
+                        )}
                     </Suspense>
                 ) : (
                     <MDEditor
@@ -131,6 +150,7 @@ export default function UpdateApi() {
                         previewOptions={{
                             rehypePlugins: [[rehypeSanitize]],
                         }}
+                        autoFocus={true}
                         height={480}
                     />
                 )}
@@ -141,19 +161,30 @@ export default function UpdateApi() {
                         let updatedData;
                         if (apiDetailsDoc !== '') {
                             let jsonData: ApiType = JSON.parse(JSON.parse(apiDetailsDoc));
-                            updatedData = { ...jsonData, description };
+                            if (
+                                jsonData.method !== '' &&
+                                jsonData.name !== '' &&
+                                jsonData.url.path !== ''
+                            ) {
+                                updatedData = { ...jsonData, description };
+                                store.updateApiDetails(
+                                    params?.apiId!,
+                                    params?.id!,
+                                    JSON.stringify(updatedData),
+                                );
+                                navigate(API_DETAILS(params?.id!, params?.apiId!));
+                            } else {
+                                setHasError(true);
+                                setTimeout(() => {
+                                    setHasError(false);
+                                }, 3000);
+                            }
                         } else {
                             updatedData = { ...api, description };
+                            navigate(API_DETAILS(params?.id!, params?.apiId!));
                         }
-
-                        store.updateApiDetails(
-                            params?.apiId!,
-                            params?.id!,
-                            JSON.stringify(updatedData),
-                        );
-                        navigate(API_DETAILS(params?.id!, params?.apiId!));
                     }}
-                    className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border border-gray-200 px-14 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white mt-3 disabled:dark:border-blue-900 disabled:bg-blue-600 disabled:bg-opacity-20 disabled:text-gray-400 disabled:cursor-not-allowed disabled:active:scale-100"
+                    className="font-base cursor-pointer lg:font-lg font-ubuntu normal-transition py-1 items-end justify-self-end rounded border  px-14 bg-primary font-medium hover:shadow-lg active:scale-95 dark:border-primary text-white mt-3 disabled:dark:border-primary disabled:bg-primary disabled:bg-opacity-20 disabled:text-gray-400 disabled:cursor-not-allowed disabled:active:scale-100"
                 >
                     Save
                 </button>

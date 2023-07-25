@@ -8,6 +8,11 @@ body {
     font-family: 'Ubuntu', sans-serif;
 }
 
+html.dark {
+    color: #fff;
+    background-color: #262626;
+}
+
 @layer utilities {
     .normal-transition {
         @apply transition-all duration-100 ease-linear;

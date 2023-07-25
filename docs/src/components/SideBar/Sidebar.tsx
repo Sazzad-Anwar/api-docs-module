@@ -9,7 +9,6 @@ import { HiMenuAlt1 } from 'react-icons/hi';
 import { BiArrowBack } from 'react-icons/bi';
 import { ERoutes } from '../../Router/routes.enum';
 import { CREATE_API } from '../../utils/DynamicUrl';
-import config from '../../../public/config.json';
 
 export default function SideBar({ apiId, collectionId, className }: SideBarPropsType) {
     const [apiNames, setApiNames] = useState<string[]>([]);
@@ -70,7 +69,7 @@ export default function SideBar({ apiId, collectionId, className }: SideBarProps
                             {isMobileWidth && (
                                 <button
                                     onClick={() => store.toggleSidebar()}
-                                    className="justify-self-end cursor-pointer text-sm font-ubuntu normal-transition p-2 items-end rounded border border-gray-200 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white"
+                                    className="justify-self-end cursor-pointer text-sm font-ubuntu normal-transition p-2 items-end rounded border border-gray-200 bg-primary font-medium hover:shadow-lg active:scale-95 dark:border-primary text-white"
                                 >
                                     {store.isSidebarOpen ? <VscChromeClose /> : <HiMenuAlt1 />}
                                 </button>
@@ -81,25 +80,24 @@ export default function SideBar({ apiId, collectionId, className }: SideBarProps
                 <div className="flex justify-between border-t border-t-gray-300 dark:border-t-gray-700 items-center max-w-xl bg-gray-100 dark:bg-dark-primary-50">
                     <div className="px-7 py-3 truncate dark:text-white sticky top-0  flex items-center justify-between w-full">
                         <div className="flex items-center">
-                            <span className="truncate w-[20ch] lg:text-sm xl:text-base">
+                            <button
+                                onClick={() => navigate(ERoutes.API_COLLECTIONS)}
+                                className="truncate w-[20ch] lg:text-sm xl:text-base text-left"
+                            >
                                 {collection?.collectionName}
-                            </span>
+                            </button>
                         </div>
                         {store.env !== 'production' && (
                             <button
                                 onClick={() => navigate(CREATE_API(id!))}
-                                className="justify-self-end cursor-pointer text-sm font-ubuntu normal-transition py-1 items-end rounded border border-gray-200 px-3 ml-1 bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white"
+                                className="justify-self-end cursor-pointer text-sm font-ubuntu normal-transition py-1 items-end rounded border border-gray-200 px-3 ml-1 bg-primary font-medium hover:shadow-lg active:scale-95 dark:border-primary text-white"
                             >
                                 Add api
                             </button>
                         )}
                     </div>
                 </div>
-                {/* <div className="px-7 py-2 flex items-center">
-                    <button className="font-base cursor-pointer flex items-center lg:font-lg font-ubuntu normal-transition py-1 justify-self-end rounded border border-gray-200 px-3 lg:w-full xl:w-auto bg-blue-600 font-medium hover:shadow-lg active:scale-95 dark:border-blue-600 text-white">
-                    <RxShare1 className="mr-1" /> Share
-                </button>
-                </div> */}
+
                 <div className="px-7 pb-5 ml-2">
                     {apiNames.map((apiName, i) => (
                         <ApiFolder
@@ -109,6 +107,7 @@ export default function SideBar({ apiId, collectionId, className }: SideBarProps
                         />
                     ))}
                     {!apiNames.length && <ApiFolder api={routes} />}
+                    <ApiFolder api={routes.filter((api) => !api.groupName)} />
                 </div>
             </div>
             {isMobileWidth && store.isSidebarOpen && (
